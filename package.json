@@ -1,6 +1,17 @@
 {
+  "name": "katalon-reports-viewer",
+  "version": "2.0.0",
+  "description": "Ứng dụng web MVC để xem và quản lý báo cáo từ Katalon Studio",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "keywords": ["katalon", "reports", "viewer", "test", "automation", "mvc"],
+  "author": "leducanh120197",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.3", 
+    "express": "^4.18.3",
     "xml2js": "^0.6.2"
   }
 }
