@@ -44,4 +44,37 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
     });
+    
+    // Xử lý sự kiện cho nút "Xóa HTML"
+    document.querySelectorAll('.delete-html-btn').forEach(btn => {
+        btn.onclick = async (e) => {
+            e.preventDefault();
+            const filePath = decodeURIComponent(btn.getAttribute('data-path'));
+            
+            // Xác nhận trước khi xóa
+            if (!confirm('Bạn có chắc chắn muốn xóa file HTML này không?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/delete-html', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ filePath })
+                });
+                
+                const result = await response.json();
+                alert(result.message);
+                
+                // Nếu xóa thành công, làm mới trang
+                if (result.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                alert('Có lỗi xảy ra: ' + error.message);
+            }
+        };
+    });
 });

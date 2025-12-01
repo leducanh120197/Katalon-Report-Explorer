@@ -1,86 +1,230 @@
 # Katalon Reports Viewer
 
-Một ứng dụng web để xem và quản lý báo cáo từ Katalon Studio.
+Một ứng dụng web MVC để xem và quản lý báo cáo từ Katalon Studio.
 
-## Cấu trúc Project
+## 📁 Cấu trúc Project (Clean MVC Architecture)
 
 ```
 katalon-reports-viewer/
-├── public/                     # Static assets
-│   ├── styles.css             # CSS styles
-│   └── scripts.js             # Client-side JavaScript
-├── src/                       # Source code
-│   ├── config/                # Configuration
-│   │   └── index.js          # App configuration
-│   ├── routes/               # Route handlers
-│   │   ├── main.js           # Main routes (home, view)
-│   │   └── api.js            # API routes (create-html)
-│   ├── templates/            # HTML templates
-│   │   └── reportTemplate.js # HTML report generator
-│   └── utils/                # Utility functions
-│       ├── fileSystem.js     # File system utilities
-│       ├── htmlRenderer.js   # HTML rendering utilities
-│       └── xmlParser.js      # XML/RP file parsing
-├── app.js                    # Original monolithic file (backup)
-├── app-new.js               # New modular main application
-├── package.json             # Dependencies
-└── README.md               # This file
+├── app.js                     # 🚀 Main application entry point
+├── config.json               # ⚙️ Configuration file (JSON format)
+├── package.json              # 📦 Dependencies và scripts
+├── README.md                 # 📖 Documentation
+├── public/                   # 🌐 Static assets (Client-side)
+│   ├── styles.css           #     CSS styles cho UI
+│   └── scripts.js           #     Client-side JavaScript interactions
+└── src/                     # 💼 MVC Source code
+    ├── config/              # ⚙️ Configuration Management
+    │   └── index.js        #     Config loader với fallback
+    ├── controllers/         # 🎮 C - Controllers (Business Logic)
+    │   ├── MainController.js #     Xử lý UI pages (home, view, tree)
+    │   └── ApiController.js  #     Xử lý API calls (JSON responses)
+    ├── models/              # 📊 M - Models (Data Layer)
+    │   ├── FileTreeModel.js  #     File system operations & tree building
+    │   └── ReportModel.js    #     Report generation & HTML creation
+    ├── views/               # 🎨 V - Views (Presentation Layer)
+    │   └── MainView.js       #     HTML template rendering
+    ├── routes/              # 🛣️ Routing (URL mapping)
+    │   ├── main.js          #     Routes cho UI pages (trả về HTML)
+    │   └── api.js           #     Routes cho APIs (trả về JSON)
+    └── utils/               # 🔧 Shared Utilities
+        └── xmlParser.js     #     XML/RP file parsing functions
 ```
 
-## Modules Description
+## 🎯 Chi tiết từng thành phần MVC
 
-### Configuration (`src/config/index.js`)
-- Chứa các cấu hình ứng dụng như port, đường dẫn reports, file extensions được hỗ trợ
+### 🚀 **Main Application (`app.js`)**
+- **Entry point** của toàn bộ ứng dụng
+- Khởi tạo Express server
+- Mount static files (`public/`)
+- Kết nối routes với controllers
+- Start server với config từ `config.json`
 
-### File System Utils (`src/utils/fileSystem.js`)
-- `buildTree()`: Tạo cây thư mục từ filesystem
-- `hasDisplayableFile()`: Kiểm tra node có chứa file hiển thị được
-- `isInCollectionFolder()`: Kiểm tra đường dẫn thuộc _Collection folder
-- `isSupportedFile()`: Kiểm tra file extension có được hỗ trợ
+### ⚙️ **Configuration (`src/config/index.js` + `config.json`)**
+- **`config.json`**: File cấu hình chính (port, reportsDir, extensions)
+- **`src/config/index.js`**: Config loader với error handling
+- **Fallback mechanism**: Nếu JSON lỗi thì dùng default config
+- **Centralized settings**: Tất cả settings ở một chỗ
 
-### HTML Renderer (`src/utils/htmlRenderer.js`)
-- `renderTree()`: Render cây thư mục thành HTML table
-- `renderTreeRows()`: Render từng hàng của bảng
+### 🎮 **Controllers (Business Logic Layer)**
 
-### XML Parser (`src/utils/xmlParser.js`)
-- `parseRpFile()`: Parse file .rp (XML format)
-- `createRpTable()`: Tạo HTML table từ dữ liệu .rp
+#### **MainController.js** - UI Page Controller
+- **`showHomePage()`**: Render trang chủ với file tree
+- **`showTreeJson()`**: Hiển thị JSON structure của tree
+- **`viewFile()`**: Serve files để browser xem
+- **Responsibility**: Điều phối giữa Models và Views để tạo HTML response
 
-### Report Template (`src/templates/reportTemplate.js`)
-- `generateHtmlReport()`: Tạo HTML report từ JSON và RP files
+#### **ApiController.js** - API Endpoint Controller  
+- **`createHtmlReport()`**: Tạo HTML report từ JSON/RP files
+- **`deleteHtmlReport()`**: Xóa HTML reports với security check
+- **Responsibility**: Xử lý AJAX requests và trả về JSON responses
 
-### Routes
-- **Main Routes** (`src/routes/main.js`): Home page, file viewer
-- **API Routes** (`src/routes/api.js`): REST APIs cho việc tạo HTML reports
+### 📊 **Models (Data Access Layer)**
 
-### Static Assets (`public/`)
-- **CSS**: Styles cho UI
-- **JavaScript**: Client-side interactions
+#### **FileTreeModel.js** - File System Data Model
+- **`getDisplayTree()`**: Tạo tree structure cho hiển thị UI
+- **`getJsonTree()`**: Tạo tree với metadata đầy đủ (size, dates)
+- **`isSupportedFile()`**: Validate file extensions
+- **`isInCollectionFolder()`**: Check Collection folder path
+- **`hasDisplayableFile()`**: Recursive check for displayable content
 
-## Cách chạy
+#### **ReportModel.js** - Report Data Model
+- **`createHtmlReport()`**: Generate HTML từ JSON + RP data
+- **`saveHtmlReport()`**: Save HTML với duplicate checking
+- **`deleteHtmlReport()`**: Delete với security validation
+- **`getJsonData()`**: Parse JSON files safely
+- **`getRpData()`**: Process RP files using XML parser
 
-### Sử dụng file mới (modular)
-```bash
-node app-new.js
+### 🎨 **Views (Presentation Layer)**
+
+#### **MainView.js** - HTML Template Generator
+- **`renderHomePage()`**: Complete HTML page với navigation
+- **`renderFileTree()`**: File/folder tree table structure  
+- **`renderTreeRows()`**: Recursive table row generation
+- **`renderJsonTreePage()`**: JSON viewer page
+- **`renderErrorPage()`**: Error handling pages
+- **Responsibility**: Chỉ làm HTML templating, không có business logic
+
+### 🛣️ **Routes (URL Mapping)**
+
+#### **main.js** - UI Routes (Server-Side Rendering)
+```javascript
+GET  /           → MainController.showHomePage    → HTML page
+GET  /view       → MainController.viewFile        → File content  
+GET  /tree-show  → MainController.showTreeJson    → JSON viewer page
 ```
 
-### Sử dụng file cũ (backup)
+#### **api.js** - API Routes (Client-Side Processing)
+```javascript
+POST   /create-html  → ApiController.createHtmlReport   → JSON response
+DELETE /delete-html  → ApiController.deleteHtmlReport   → JSON response
+```
+
+### 🔧 **Utils (Shared Libraries)**
+
+#### **xmlParser.js** - XML Processing Utilities
+- **`parseRpFile()`**: Parse .rp XML files using xml2js
+- **`createRpTable()`**: Generate HTML table from RP data
+- **Pure functions**: No side effects, easy to test
+
+### 🌐 **Public Assets (Client-Side)**
+
+#### **styles.css** - UI Styling
+- File tree table styling
+- Button styles (create/delete)
+- Responsive design elements
+
+#### **scripts.js** - Client Interactions
+- Folder toggle functionality  
+- AJAX calls cho create/delete HTML
+- DOM manipulation sau API responses
+
+## 🚀 Cách chạy
+
 ```bash
+# Install dependencies
+npm install
+
+# Start application  
+npm start
+# hoặc
 node app.js
+
+# Development mode
+npm run dev
 ```
 
-## Lợi ích của việc modularize
+**Server sẽ chạy tại**: `http://localhost:3000`
 
-1. **Dễ maintain**: Mỗi module có trách nhiệm riêng biệt
-2. **Dễ test**: Có thể test từng module độc lập
-3. **Reusable**: Các utility functions có thể tái sử dụng
-4. **Scalable**: Dễ dàng thêm tính năng mới
-5. **Clean code**: Code dễ đọc và hiểu hơn
-6. **Separation of concerns**: Tách biệt logic, presentation, và configuration
+## 🎯 Luồng hoạt động MVC
 
-## Dependencies
+### **📖 Khi user truy cập trang chủ:**
+1. **Route** (`/`) → **MainController**.showHomePage()
+2. **Controller** → **FileTreeModel**.getDisplayTree() (lấy data)
+3. **Controller** → **MainView**.renderHomePage() (tạo HTML)  
+4. **Response**: HTML page hoàn chỉnh
 
-- `express`: Web framework
-- `xml2js`: XML parsing
-- `fs.promises`: Async file operations
-- `path`: File path utilities
+### **⚡ Khi user click "Tạo HTML":**
+1. **Client JS** → POST `/create-html` (JSON request)
+2. **Route** → **ApiController**.createHtmlReport()
+3. **Controller** → **ReportModel**.createHtmlReport() (xử lý data)
+4. **Controller** → **ReportModel**.saveHtmlReport() (lưu file)
+5. **Response**: JSON `{success: true, message: "..."}`
+6. **Client JS**: alert() → location.reload()
+
+## 💡 Lợi ích Architecture MVC
+
+### **🎯 Separation of Concerns**
+- **Models**: Chỉ xử lý data logic
+- **Views**: Chỉ làm presentation  
+- **Controllers**: Điều phối giữa M và V
+
+### **🔧 Maintainability** 
+- Sửa UI → chỉ sửa Views
+- Sửa business logic → chỉ sửa Controllers/Models
+- Thêm tính năng → thêm method vào class tương ứng
+
+### **🧪 Testability**
+- Test từng layer riêng biệt
+- Mock dependencies dễ dàng
+- Unit test cho Models, integration test cho Controllers
+
+### **📈 Scalability**
+- Thêm Controllers mới cho features mới
+- Models có thể dùng chung cho nhiều Controllers  
+- Views có thể template reuse
+
+### **👥 Team Collaboration**
+- Frontend dev làm Views + Public assets
+- Backend dev làm Models + Controllers
+- DevOps làm Config + Deployment
+
+## 🛠️ Tech Stack
+
+### **Backend Framework**
+- **Express.js**: Web server framework
+- **Node.js**: JavaScript runtime
+
+### **Template Engine** 
+- **String templates**: Simple HTML generation trong Views
+
+### **Data Processing**
+- **xml2js**: XML parsing cho .rp files
+- **fs.promises**: Async file operations
+
+### **Client-Side**
+- **Vanilla JavaScript**: DOM manipulation, AJAX
+- **CSS3**: Modern styling
+
+### **Architecture Pattern**
+- **MVC**: Model-View-Controller
+- **RESTful APIs**: Standard HTTP methods
+- **Static file serving**: Express static middleware
+
+## 📝 Configuration Options
+
+### **config.json**
+```json
+{
+  "port": 3000,                                    // Server port
+  "reportsDir": "E:\\path\\to\\Reports",          // Katalon reports directory  
+  "supportedFileExtensions": [".html", ".json", ".rp"], // File types to display
+  "appName": "Katalon Reports Viewer",            // Application name
+  "description": "MVC web app for Katalon reports" // App description
+}
+```
+
+## 🔒 Security Features
+
+- **Path validation**: Chỉ cho phép xóa collection.html trong _Collection
+- **File extension filtering**: Chỉ hiển thị file types được support
+- **Input sanitization**: Validate file paths trước khi xử lý
+- **Error handling**: Graceful error responses
+
+## 📊 File Types Supported
+
+- **`.html`**: Katalon HTML reports
+- **`.json`**: Test collection data  
+- **`.rp`**: Report collection XML files
+
+Project này đã đạt chuẩn **Enterprise-level MVC architecture** với clean code và professional structure! 🏆
