@@ -21,10 +21,10 @@ class MainController {
      */
     static async showHomePage(req, res) {
         try {
-            // Gọi Model để lấy cấu trúc cây thư mục
-            const tree = await FileTreeModel.getDisplayTree(config.reportsDir);
+            // Lấy dữ liệu report table từ Model
+            const reportTableData = await FileTreeModel.getReportTableData(config.reportsDir);
             // Gọi View để render HTML từ data
-            const html = MainView.renderHomePage(tree);
+            const html = MainView.renderHomePage(reportTableData);
             // Trả về HTML response
             res.send(html);
         } catch (error) {
