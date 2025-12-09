@@ -81,8 +81,8 @@ class FileTreeModel {
         try {
             // Lấy tên thư mục từ đường dẫn
             const name = path.basename(dir);
+
             // Loại trừ các thư mục không cần thiết
-            if (name === 'katalon-reports-viewer') return null;
             if (name === 'Self-healing') return null;
 
             // Lấy thông tin metadata của thư mục
@@ -142,6 +142,199 @@ class FileTreeModel {
         return node.children.some(child => 
             child?.isFile || this.hasDisplayableFile(child)
         );
+    }
+
+    /**
+     * Parse folder structure thành dạng report table rows
+     * @param {string} dir - Thư mục gốc để scan  
+     * @returns {Array} - Array of report rows cho table display
+     */
+    static async getReportTableData(dir) {
+        try {
+            const tree = await this.getDisplayTree(dir);
+            
+            if (!tree?.children?.length) {
+                return [];
+            }
+            
+            const reportRows = [];
+            
+            // Duyệt qua các timestamp folders (level 1)
+            for (const timestampFolder of tree.children) {
+                
+                if (!timestampFolder.children?.length) {
+                    continue;
+                }
+                
+                let folderRowCount = 0;
+                const timestampName = timestampFolder.name;
+                
+                // Kiểm tra nếu có file .rp trực tiếp trong timestamp folder
+                const directRpFiles = timestampFolder.children.filter(f => f.isFile && f.fileType === 'rp');
+                if (directRpFiles.length > 0) {
+                    directRpFiles.forEach(rpFile => {
+                        reportRows.push({
+                            folder: timestampName,
+                            platform: '_Collection',
+                            role: 'Test Collection',
+                            module: '',
+                            runId: timestampName,
+                            reportFile: rpFile.name,
+                            reportPath: rpFile.path,
+                            isFirstInFolder: folderRowCount === 0
+                        });
+                        folderRowCount++;
+                    });
+                }
+                
+                // Tìm _Collection folder và các platform folders
+                for (const child of timestampFolder.children) {
+                    if (child.name === '_Collection' && child.children) {
+                        // Collection row
+                        const collectionFiles = child.children.filter(f => f.isFile && (f.fileType === 'rp' || f.fileType === 'json'));
+                        if (collectionFiles.length > 0) {
+                            const rpFile = collectionFiles.find(f => f.fileType === 'rp');
+                            const htmlFile = collectionFiles.find(f => f.fileType === 'html');
+                            const reportFile = htmlFile || rpFile || collectionFiles[0];
+                            
+                            reportRows.push({
+                                folder: timestampName,
+                                platform: '_Collection', 
+                                role: 'STG - Collection',
+                                module: '',
+                                runId: timestampName,
+                                reportFile: reportFile ? reportFile.name : '',
+                                reportPath: reportFile ? reportFile.path : '',
+                                isFirstInFolder: folderRowCount === 0
+                            });
+                            folderRowCount++;
+                        }
+                    } else if (child.children?.length) {
+                        // Platform folder (Android, iOS, etc.) hoặc Test Suites
+                        const platformName = child.name;
+                        
+                        // Nếu là Test Suites folder, dive deeper
+                        if (platformName === 'Test Suites') {
+                            for (const testSuiteChild of child.children) {
+                                if (testSuiteChild.children?.length) {
+                                    this.processNestedFolder(testSuiteChild, timestampName, folderRowCount, reportRows);
+                                    folderRowCount += this.countRowsAdded(testSuiteChild);
+                                }
+                            }
+                        } else {
+                            // Direct platform folder - Android level is depth 0
+                            // Start with Android as platform
+                            const initialPathInfo = { platform: child.name };
+                            this.findAllReportFiles(child, timestampName, folderRowCount, reportRows, 1, initialPathInfo);
+                            folderRowCount += this.countRowsAdded(child);
+                        }
+                    }
+                }
+                
+                // Nếu không tìm thấy gì, thêm ít nhất 1 row cho folder
+                if (folderRowCount === 0) {
+                    reportRows.push({
+                        folder: timestampName,
+                        platform: 'Unknown',
+                        role: '',
+                        module: '',
+                        runId: timestampName,
+                        reportFile: '',
+                        reportPath: '',
+                        isFirstInFolder: true
+                    });
+                }
+            }
+            
+            return reportRows;
+        } catch (error) {
+            console.error('Error in getReportTableData:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Process nested folder structure để extract report data
+     */
+    static processNestedFolder(folder, timestampName, folderRowCount, reportRows) {
+        // Bắt đầu với depth = 0 (platform level)
+        this.findAllReportFiles(folder, timestampName, folderRowCount, reportRows, 0, {});
+    }
+
+    /**
+     * Recursively find all report files in a folder structure
+     * Structure: timestamp/platform/role/module/runId/file
+     */
+    static findAllReportFiles(node, timestampName, folderRowCount, reportRows, depth = 0, pathInfo = {}) {
+        if (!node.children?.length) return;
+        
+        // Nếu có files trong node này
+        const reportFiles = node.children.filter(f => f.isFile && (f.fileType === 'rp' || f.fileType === 'html' || f.fileType === 'json'));
+        
+        if (reportFiles.length > 0) {
+            reportFiles.forEach(file => {
+                reportRows.push({
+                    folder: timestampName,
+                    platform: pathInfo.platform || 'Unknown',
+                    role: pathInfo.role || '',
+                    module: pathInfo.module || '',
+                    runId: this.extractRunId(file.name) || pathInfo.runId || timestampName,
+                    reportFile: file.name,
+                    reportPath: file.path,
+                    isFirstInFolder: reportRows.filter(r => r.folder === timestampName).length === 0
+                });
+            });
+        }
+        
+        // Recurse into subfolders với updated path info
+        for (const child of node.children) {
+            if (!child.isFile) {
+                let newPathInfo = { ...pathInfo };
+                
+                // Determine level based on depth (adjusted for starting from Android level)
+                switch (depth) {
+                    case 0: // Platform level (Android, iOS) - already set in initial call
+                        if (!newPathInfo.platform) newPathInfo.platform = child.name;
+                        break;
+                    case 1: // Role level (Admin, Owner, ResidentRenew) 
+                        newPathInfo.role = child.name;
+                        break;
+                    case 2: // Module level (Login, Home, Chat, AgreeContract, etc.)
+                        newPathInfo.module = child.name;
+                        break;
+                    case 3: // RunId level (20251203_200844)
+                        newPathInfo.runId = child.name;
+                        break;
+                }
+                
+                this.findAllReportFiles(child, timestampName, folderRowCount, reportRows, depth + 1, newPathInfo);
+            }
+        }
+    }
+
+    /**
+     * Count potential rows that would be added from a folder
+     */
+    static countRowsAdded(folder) {
+        let count = 0;
+        if (folder.children?.length) {
+            for (const child of folder.children) {
+                if (child.isFile && (child.fileType === 'rp' || child.fileType === 'html' || child.fileType === 'json')) {
+                    count++;
+                } else if (!child.isFile) {
+                    count += this.countRowsAdded(child);
+                }
+            }
+        }
+        return Math.max(count, 0);
+    }
+
+    /**
+     * Extract Run ID from filename if possible
+     */
+    static extractRunId(filename) {
+        const match = filename.match(/(\d{8}_\d{6})/);
+        return match ? match[1] : null;
     }
 }
 
