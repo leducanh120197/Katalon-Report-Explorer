@@ -2,6 +2,12 @@
 node_modules/
 jspm_packages/
 
+# Configuration files with personal data
+config.json
+
+# Build output
+dist/
+
 # Logs
 logs
 *.log

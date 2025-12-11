@@ -4,7 +4,17 @@ const fs = require('fs');
 // Đọc config từ file JSON
 let config = {};
 try {
-    const configPath = path.join(__dirname, '..', '..', 'config.json');
+    // PKG executable: config.json ở cùng thư mục với .exe
+    // Development: config.json ở root project
+    let configPath;
+    if (process.pkg) {
+        // Running as PKG executable - config.json cùng thư mục với .exe
+        configPath = path.join(path.dirname(process.execPath), 'config.json');
+    } else {
+        // Running from source - config.json ở root project
+        configPath = path.join(__dirname, '..', '..', 'config.json');
+    }
+    
     const configData = fs.readFileSync(configPath, 'utf8');
     config = JSON.parse(configData);
 } catch (error) {
