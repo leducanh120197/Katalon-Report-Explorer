@@ -1,0 +1,7 @@
+{
+  "port": 3000,
+  "reportsDir": "C:\\path\\to\\your\\katalon\\Reports",
+  "supportedFileExtensions": [".html", ".json", ".rp"],
+  "appName": "Katalon Reports Viewer",
+  "description": "Web application to view and manage reports from Katalon Studio"
+}

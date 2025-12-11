@@ -2,6 +2,31 @@
 
 Một ứng dụng web MVC để xem và quản lý báo cáo từ Katalon Studio.
 
+## 🚀 Quick Start
+
+### ⚙️ **Setup Configuration**
+
+1. **Copy sample config:**
+   ```bash
+   cp config.json.sample config.json
+   ```
+
+2. **Update Reports Directory:**
+   ```json
+   {
+     "reportsDir": "C:\\your\\katalon\\project\\Reports"  
+   }
+   ```
+
+### 🏃‍♂️ **Run Application**
+
+```bash
+npm install
+npm start
+```
+
+Access: http://localhost:3000
+
 ## 📁 Cấu trúc Project (Clean MVC Architecture)
 
 ```
@@ -226,5 +251,86 @@ npm run dev
 - **`.html`**: Katalon HTML reports
 - **`.json`**: Test collection data  
 - **`.rp`**: Report collection XML files
+
+## 📦 Build & Deploy
+
+### 🚀 **Build Executable (PKG)**
+
+Ứng dụng có thể build thành standalone executable không cần Node.js:
+
+```bash
+# Cài PKG (chỉ cần 1 lần)
+npm install -g pkg
+
+# Build cho Windows
+npm run build-win
+
+# Build cho macOS (Intel)
+npm run build-mac
+
+# Build cho macOS (Apple Silicon M1/M2)  
+npm run build-mac-arm
+
+# Build cho Linux
+npm run build-linux
+
+# Build cho tất cả platforms
+npm run build-all
+```
+
+**Kết quả:**
+- Windows: `dist/katalon-reports-viewer.exe` (~43MB)
+- macOS Intel: `dist/katalon-reports-viewer-macos` (~45MB)
+- macOS ARM64: `dist/katalon-reports-viewer-macos-arm64` (~42MB)
+- Linux: `dist/katalon-reports-viewer-linux` (~44MB)
+
+### 📋 **Deploy Instructions**
+
+1. **Copy sample config:** `cp config.json.sample config.json`
+2. **Update config:** Sửa `reportsDir` trong config.json theo đường dẫn Reports của bạn
+3. **Copy executable:** Chép `katalon-reports-viewer.exe` sang máy đích
+4. **Copy config:** Chép `config.json` cùng folder với .exe  
+5. **Run application:** Double-click .exe hoặc chạy từ command line
+6. **Access web interface:** Mở browser tại `http://localhost:3000`
+
+### ⚙️ **Build Scripts**
+
+```bash
+# Development
+npm start              # Chạy từ source code
+npm run dev           # Development mode
+
+# Production Build  
+npm run build         # Build all platforms
+npm run build-win     # Build Windows only (.exe)
+```
+
+### ⚙️ **PKG Configuration**
+
+```json
+{
+  "pkg": {
+    "assets": [
+      "src/**/*",     // MVC source code
+      "public/**/*",  // Static assets  
+      "config.json",  // Configuration
+      "README.md"     // Documentation
+    ],
+    "targets": [
+      "node18-win-x64",      // Windows 64-bit
+      "node18-macos-x64",    // macOS Intel  
+      "node18-macos-arm64",  // macOS Apple Silicon
+      "node18-linux-x64"     // Linux 64-bit
+    ],
+    "outputPath": "dist"
+  }
+}
+```
+
+**Lợi ích executable:**
+- ✅ **Portable**: Không cần Node.js trên máy đích
+- ✅ **Single file**: Dễ distribute và deploy
+- ✅ **Performance**: Tối ưu hóa cho production
+- ✅ **Security**: Không expose source code
 
 Project này đã đạt chuẩn **Enterprise-level MVC architecture** với clean code và professional structure! 🏆

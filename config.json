@@ -1,7 +1,0 @@
-{
-  "port": 3000,
-  "reportsDir": "E:\\company-workspace\\CHINTAI\\chintai-auto-test-mobile\\katalon-base\\Reports",
-  "supportedFileExtensions": [".html", ".json", ".rp"],
-  "appName": "Katalon Reports Viewer",
-  "description": "Ứng dụng web để xem và quản lý báo cáo từ Katalon Studio"
-}
