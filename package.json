@@ -1,0 +1,39 @@
+{
+  "name": "katalon-reports-viewer",
+  "version": "2.0.0",
+  "description": "Ứng dụng web MVC để xem và quản lý báo cáo từ Katalon Studio",
+  "main": "app.js",
+  "bin": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "pkg . --out-path dist",
+    "build-win": "pkg . --targets node18-win-x64 --out-path dist",
+    "build-mac": "pkg . --targets node18-macos-x64 --out-path dist",
+    "build-mac-arm": "pkg . --targets node18-macos-arm64 --out-path dist",
+    "build-linux": "pkg . --targets node18-linux-x64 --out-path dist",
+    "build-all": "pkg . --targets node18-win-x64,node18-macos-x64,node18-macos-arm64,node18-linux-x64 --out-path dist"
+  },
+  "keywords": ["katalon", "reports", "viewer", "test", "automation", "mvc"],
+  "author": "leducanh120197",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.3",
+    "xml2js": "^0.6.2"
+  },
+  "pkg": {
+    "assets": [
+      "src/**/*",
+      "public/**/*",
+      "config.json",
+      "README.md"
+    ],
+    "targets": [
+      "node18-win-x64",
+      "node18-macos-x64",
+      "node18-macos-arm64", 
+      "node18-linux-x64"
+    ],
+    "outputPath": "dist"
+  }
+}

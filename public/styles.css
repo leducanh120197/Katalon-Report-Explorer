@@ -1,0 +1,76 @@
+body { 
+    font-family: Arial, sans-serif; 
+    margin: 20px; 
+}
+
+/* CSS cho bảng */
+.file-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.file-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.nested-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.nested-table td {
+    border: none;
+    padding: 4px 8px;
+}
+
+.folder-row {
+    background-color: #f9f9f9;
+}
+
+.file-row:hover, .folder-row:hover {
+    background-color: #f1f1f1;
+}
+
+.toggle-folder {
+    cursor: pointer;
+    color: blue;
+}
+
+.toggle-folder::before {
+    content: "▶ ";
+}
+
+.open .toggle-folder::before {
+    content: "▼ ";
+}
+
+.create-html-btn { 
+    margin-left: 10px; 
+    background-color: #4CAF50; 
+    color: white; 
+    border: none; 
+    padding: 2px 8px; 
+    border-radius: 3px; 
+    cursor: pointer; 
+}
+
+.create-html-btn:hover {
+    background-color: #45a049;
+}
+
+.delete-html-btn {
+    margin-left: 5px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 2px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.delete-html-btn:hover {
+    background-color: #da190b;
+}
