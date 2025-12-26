@@ -25,7 +25,12 @@ try {
         reportsDir: path.join(__dirname, '..', '..', '..', 'Reports'),
         supportedFileExtensions: ['.html', '.json', '.rp'],
         appName: 'Katalon Reports Viewer',
-        description: 'Ứng dụng web để xem và quản lý báo cáo từ Katalon Studio'
+        description: 'Ứng dụng web để xem và quản lý báo cáo từ Katalon Studio',
+        autoStart: {
+            enabled: false,
+            minimizeToTray: false,
+            startHidden: false
+        }
     };
 }
 

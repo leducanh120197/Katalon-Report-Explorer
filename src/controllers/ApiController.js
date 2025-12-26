@@ -85,6 +85,124 @@ class ApiController {
             }
         }
     }
+
+    /**
+     * Lấy trạng thái auto-start
+     * @param {Object} req - Express request object
+     * @param {Object} res - Express response object
+     */
+    static async getAutoStartStatus(req, res) {
+        try {
+            const autoLauncher = req.app.locals.autoLauncher;
+            const enabled = await autoLauncher.isEnabled();
+            
+            res.json({ 
+                success: true, 
+                enabled: enabled 
+            });
+        } catch (err) {
+            console.error('Error getting auto-start status:', err);
+            res.status(500).json({ 
+                success: false, 
+                message: err.message || 'Có lỗi xảy ra khi kiểm tra trạng thái auto-start'
+            });
+        }
+    }
+
+    /**
+     * Toggle auto-start (bật/tắt)
+     * @param {Object} req - Express request object
+     * @param {Object} res - Express response object
+     */
+    static async toggleAutoStart(req, res) {
+        try {
+            const autoLauncher = req.app.locals.autoLauncher;
+            const result = await autoLauncher.toggle();
+            
+            if (result.success) {
+                res.json({ 
+                    success: true, 
+                    enabled: result.enabled,
+                    message: result.enabled ? 'Auto-start đã được bật' : 'Auto-start đã được tắt'
+                });
+            } else {
+                res.status(500).json({ 
+                    success: false, 
+                    message: result.error || 'Có lỗi xảy ra khi thay đổi auto-start'
+                });
+            }
+        } catch (err) {
+            console.error('Error toggling auto-start:', err);
+            res.status(500).json({ 
+                success: false, 
+                message: err.message || 'Có lỗi xảy ra khi thay đổi auto-start'
+            });
+        }
+    }
+
+    /**
+     * Bật auto-start
+     * @param {Object} req - Express request object
+     * @param {Object} res - Express response object
+     */
+    static async enableAutoStart(req, res) {
+        try {
+            const autoLauncher = req.app.locals.autoLauncher;
+            const success = await autoLauncher.enable();
+            
+            if (success) {
+                await autoLauncher.updateConfigFile(true);
+                res.json({ 
+                    success: true, 
+                    enabled: true,
+                    message: 'Auto-start đã được bật'
+                });
+            } else {
+                res.status(500).json({ 
+                    success: false, 
+                    message: 'Có lỗi xảy ra khi bật auto-start'
+                });
+            }
+        } catch (err) {
+            console.error('Error enabling auto-start:', err);
+            res.status(500).json({ 
+                success: false, 
+                message: err.message || 'Có lỗi xảy ra khi bật auto-start'
+            });
+        }
+    }
+
+    /**
+     * Tắt auto-start
+     * @param {Object} req - Express request object
+     * @param {Object} res - Express response object
+     */
+    static async disableAutoStart(req, res) {
+        try {
+            const autoLauncher = req.app.locals.autoLauncher;
+            const success = await autoLauncher.disable();
+            
+            if (success) {
+                await autoLauncher.updateConfigFile(false);
+                res.json({ 
+                    success: true, 
+                    enabled: false,
+                    message: 'Auto-start đã được tắt'
+                });
+            } else {
+                res.status(500).json({ 
+                    success: false, 
+                    message: 'Có lỗi xảy ra khi tắt auto-start'
+                });
+            }
+        } catch (err) {
+            console.error('Error disabling auto-start:', err);
+            res.status(500).json({ 
+                success: false, 
+                message: err.message || 'Có lỗi xảy ra khi tắt auto-start'
+            });
+        }
+    }
 }
 
 module.exports = ApiController;

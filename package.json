@@ -7,17 +7,35 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "pkg . --out-path dist",
-    "build-win": "pkg . --targets node18-win-x64 --out-path dist",
-    "build-mac": "pkg . --targets node18-macos-x64 --out-path dist",
-    "build-mac-arm": "pkg . --targets node18-macos-arm64 --out-path dist",
-    "build-linux": "pkg . --targets node18-linux-x64 --out-path dist",
-    "build-all": "pkg . --targets node18-win-x64,node18-macos-x64,node18-macos-arm64,node18-linux-x64 --out-path dist"
+    "build": "node scripts/build.js",
+    "build-win": "node scripts/build.js win",
+    "build-mac": "node scripts/build.js mac",
+    "build-mac-arm": "node scripts/build.js mac-arm", 
+    "build-linux": "node scripts/build.js linux",
+    "build-all": "node scripts/build.js",
+    "build-simple": "node scripts/build-simple.js",
+    "build-simple-win": "node scripts/build-simple.js win",
+    "build-simple-mac": "node scripts/build-simple.js mac",
+    "build-simple-linux": "node scripts/build-simple.js linux",
+    "build-legacy": "pkg . --out-path dist",
+    "build-win-legacy": "pkg . --targets node18-win-x64 --out-path dist",
+    "build-mac-legacy": "pkg . --targets node18-macos-x64 --out-path dist",
+    "build-mac-arm-legacy": "pkg . --targets node18-macos-arm64 --out-path dist",
+    "build-linux-legacy": "pkg . --targets node18-linux-x64 --out-path dist",
+    "build-all-legacy": "pkg . --targets node18-win-x64,node18-macos-x64,node18-macos-arm64,node18-linux-x64 --out-path dist"
   },
-  "keywords": ["katalon", "reports", "viewer", "test", "automation", "mvc"],
+  "keywords": [
+    "katalon",
+    "reports",
+    "viewer",
+    "test",
+    "automation",
+    "mvc"
+  ],
   "author": "leducanh120197",
   "license": "MIT",
   "dependencies": {
+    "auto-launch": "^5.0.6",
     "express": "^4.18.3",
     "xml2js": "^0.6.2"
   },
@@ -31,7 +49,7 @@
     "targets": [
       "node18-win-x64",
       "node18-macos-x64",
-      "node18-macos-arm64", 
+      "node18-macos-arm64",
       "node18-linux-x64"
     ],
     "outputPath": "dist"

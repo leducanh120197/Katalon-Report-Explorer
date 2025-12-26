@@ -37,6 +37,18 @@ class MainView {
                         margin-right: 10px;
                     }
                     .controls button:hover { background-color: #005a87; }
+                    .controls .auto-start-section {
+                        display: inline-block;
+                        margin-left: 20px;
+                        vertical-align: top;
+                    }
+                    .controls .auto-start-status {
+                        font-size: 14px;
+                        margin-right: 10px;
+                        color: #666;
+                    }
+                    .auto-start-enabled { color: #28a745; }
+                    .auto-start-disabled { color: #dc3545; }
                     
                     table { 
                         border-collapse: collapse; 
@@ -77,6 +89,10 @@ class MainView {
                     <form action="/tree-show" method="get" style="display: inline-block;">
                         <button type="submit">Show Tree JSON</button>
                     </form>
+                    <div class="auto-start-section">
+                        <span id="auto-start-status" class="auto-start-status">Auto-start: <span id="auto-start-value">Đang kiểm tra...</span></span>
+                        <button type="button" id="toggle-auto-start">Bật/Tắt Auto-start</button>
+                    </div>
                 </div>
                 ${this.renderReportTable(reportTableData)}
                 <script src="/scripts.js"></script>
